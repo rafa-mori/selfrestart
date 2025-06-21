@@ -17,8 +17,8 @@ jobs:
       - name: Install UPX and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y upx zip tar curl gzip
-          sudo apt-get install -y "$(sudo apt-cache show 'libzmq[1-9]-dev' | grep '^Package: ' | uniq | head -n1 | awk '{print $2}')"
+          sudo apt-get install -y upx zip tar curl gzip --no-install-recommends --no-install-suggests
+          sudo apt-get install -y "$(sudo apt-cache show 'libzmq[1-9]-dev' | grep '^Package: ' | uniq | head -n1 | awk '{print $2}')"  --no-install-recommends --no-install-suggests
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
       - name: Install Go
         run: |
           export NON_INTERACTIVE=true
-          bash -c "$(curl -sSfL 'https://raw.githubusercontent.com/faelmori/gosetup/refs/heads/main/go.sh')" -s --version "$(grep '^go ' go.mod | awk '{print $2}')"
+          bash -c "$(curl -sSfL 'https://raw.githubusercontent.com/rafa-mori/gosetup/refs/heads/main/go.sh')" -s --version "$(grep '^go ' go.mod | awk '{print $2}')"
 
       - name: Verify Go Installation
         run: go version
@@ -75,16 +75,16 @@ jobs:
       - name: Build
         run: |
           MOD_NAME=$(awk '/^module /{print $2}' go.mod | awk -F'/' '{print $NF}')
-          BIN_NAME="${MOD_NAME}_linux_amd64"
-          go build -ldflags "-s -w -X main.version=${GITHUB_REF#refs/tags/} -X main.commit=$(git rev-parse HEAD) -X main.date=$(date +%Y-%m-%d)" -trimpath -o "$BIN_NAME" "$(dirname $(grep -risn '^package main' $(realpath ./) | head -n1 | awk -F ':' '{print $1}'))"
+          BIN_NAME="${MOD_NAME:-"$(basename "$(realpath ./)")"}_linux_amd64"
+          go build -ldflags "-s -w -X main.version=${GITHUB_REF#refs/tags/} -X main.commit=$(git rev-parse HEAD) -X main.date=$(date +%Y-%m-%d)" -trimpath -o "${BIN_NAME:-.}" "$(dirname $(grep -risn --exclude-dir={docs,examples,version} '^package main' $(realpath ./) | head -n1 | awk -F ':' '{print $1}'))"
 
       - name: Compress with UPX
         run: |
           MOD_NAME=$(awk '/^module /{print $2}' go.mod | awk -F'/' '{print $NF}')
-          BIN_NAME="${MOD_NAME}_linux_amd64"
-          upx "$BIN_NAME" --force-overwrite --lzma --no-progress --no-color -qqq
-          tar -czvf "$BIN_NAME.tar.gz" "$BIN_NAME" --remove-files
-          sha256sum "$BIN_NAME.tar.gz" > "$BIN_NAME.tar.gz.sha256"
+          BIN_NAME="${MOD_NAME:-"$(basename "$(realpath ./)")"}_linux_amd64"
+          upx "${BIN_NAME:-.}" --force-overwrite --lzma --no-progress --no-color -qqq
+          tar -czvf "${BIN_NAME:-.}.tar.gz" "${BIN_NAME:-.}" --remove-files
+          sha256sum "${BIN_NAME:-.}.tar.gz" > "${BIN_NAME:-.}.tar.gz.sha256"
 
       - name: Create GitHub Release
         id: create_release
@@ -109,3 +109,4 @@ jobs:
 
       - name: Clean Go Build Cache
         run: go clean -cache -modcache -i -r
+        
