@@ -1,5 +1,6 @@
-# 🔄 SelfRestart
+# ![SelfRestart Banner](docs/assets/top_banner_a.png)
 
+[![Build](https://github.com/rafa-mori/selfrestart/actions/workflows/release.yml/badge.svg)](https://github.com/rafa-mori/selfrestart/actions/workflows/release.yml)
 [![Go Version](https://img.shields.io/badge/Go-1.24+-blue.svg)](https://golang.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/rafa-mori/selfrestart)](https://goreportcard.com/report/github.com/rafa-mori/selfrestart)
