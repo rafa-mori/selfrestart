@@ -243,7 +243,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/rafa-mori/selfrestart/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/rafa-mori/selfrestart/discussions)
-- 📧 **Email**: [your-email@example.com]
+- 📧 **Email**: [faelmori@gmail.com]
 
 ---
 
