@@ -241,9 +241,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
+If you have any questions, suggestions or issues, feel free to reach out:
+
+- 📖 **Documentation**: [GitHub Wiki](https://github.com/rafa-mori/selfrestart/wiki)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/rafa-mori/selfrestart/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/rafa-mori/selfrestart/discussions)
-- 📧 **Email**: [faelmori@gmail.com]
+- 👤 **LinkedIn**: [Rafael Mori](https://www.linkedin.com/in/rafa-mori/)
+- 🐦 **Twitter**: [@faelOmori](https://twitter.com/faelOmori)
+- 📧 **Email**: [faelmori](mailto:faelmori@gmail.com)
+- 🌐 **Website**: [rafamori.pro](https://rafamori.pro)
 
 ---
 
