@@ -1,48 +1,52 @@
 package main
 
 import (
-	cc "github.com/rafa-mori/goforge/cmd/cli"
-	gl "github.com/rafa-mori/goforge/logger"
-	vs "github.com/rafa-mori/goforge/version"
+	cc "github.com/rafa-mori/selfrestart/cmd/cli"
+	gl "github.com/rafa-mori/selfrestart/logger"
+	vs "github.com/rafa-mori/selfrestart/version"
 	"github.com/spf13/cobra"
 
 	"os"
 	"strings"
 )
 
-type GoForge struct {
+type SelfRestart struct {
 	parentCmdName string
 	printBanner   bool
 }
 
-func (m *GoForge) Alias() string {
+func (m *SelfRestart) Alias() string {
 	return ""
 }
-func (m *GoForge) ShortDescription() string {
-	return "GoForge is a minimalistic backend service with Go."
+func (m *SelfRestart) ShortDescription() string {
+	return "SelfRestart is a Go library for automatic process restart functionality."
 }
-func (m *GoForge) LongDescription() string {
-	return `GoForge: A minimalistic backend service with Go.`
+func (m *SelfRestart) LongDescription() string {
+	return `SelfRestart: A Go library that allows applications to restart themselves automatically in a safe and elegant way.`
 }
-func (m *GoForge) Usage() string {
-	return "article [command] [args]"
+func (m *SelfRestart) Usage() string {
+	return "selfrestart [command] [args]"
 }
-func (m *GoForge) Examples() []string {
-	return []string{"article some-command",
-		"article another-command --option value",
-		"article yet-another-command --flag"}
+func (m *SelfRestart) Examples() []string {
+	return []string{
+		"selfrestart start --debug --daemon",
+		"selfrestart restart --wait",
+		"selfrestart restart --pid 12345",
+		"selfrestart status --pid 12345",
+		"selfrestart check",
+	}
 }
-func (m *GoForge) Active() bool {
+func (m *SelfRestart) Active() bool {
 	return true
 }
-func (m *GoForge) Module() string {
-	return "article"
+func (m *SelfRestart) Module() string {
+	return "selfrestart"
 }
-func (m *GoForge) Execute() error {
+func (m *SelfRestart) Execute() error {
 	return m.Command().Execute()
 }
-func (m *GoForge) Command() *cobra.Command {
-	gl.Log("debug", "Starting GoForge CLI...")
+func (m *SelfRestart) Command() *cobra.Command {
+	gl.Log("debug", "Starting SelfRestart CLI...")
 
 	var rtCmd = &cobra.Command{
 		Use:     m.Module(),
@@ -71,10 +75,10 @@ func (m *GoForge) Command() *cobra.Command {
 
 	return rtCmd
 }
-func (m *GoForge) SetParentCmdName(rtCmd string) {
+func (m *SelfRestart) SetParentCmdName(rtCmd string) {
 	m.parentCmdName = rtCmd
 }
-func (m *GoForge) concatenateExamples() string {
+func (m *SelfRestart) concatenateExamples() string {
 	examples := ""
 	rtCmd := m.parentCmdName
 	if rtCmd != "" {
@@ -85,13 +89,13 @@ func (m *GoForge) concatenateExamples() string {
 	}
 	return examples
 }
-func RegX() *GoForge {
-	var printBannerV = os.Getenv("GOFORGE_PRINT_BANNER")
+func RegX() *SelfRestart {
+	var printBannerV = os.Getenv("SELFRESTART_PRINT_BANNER")
 	if printBannerV == "" {
 		printBannerV = "true"
 	}
 
-	return &GoForge{
+	return &SelfRestart{
 		printBanner: strings.ToLower(printBannerV) == "true",
 	}
 }

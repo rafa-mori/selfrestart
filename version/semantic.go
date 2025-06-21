@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	gl "github.com/rafa-mori/goforge/logger"
+	gl "github.com/rafa-mori/selfrestart/logger"
 	l "github.com/rafa-mori/logz"
 
 	"github.com/spf13/cobra"
@@ -35,10 +35,10 @@ func init() {
 	}
 }
 
-var moduleAlias = "GoForge" // Default module alias, can be overridden by environment variable
-var moduleName = "goforge"  // Default module name, can be overridden by environment variable
+var moduleAlias = "SelfRestart" // Default module alias, can be overridden by environment variable
+var moduleName = "selfrestart"  // Default module name, can be overridden by environment variable
 
-const currentVersionFallback = "v0.0.1"
+const currentVersionFallback = "v1.0.0"
 
 //go:embed CLI_VERSION
 var cliVersion string

@@ -1,207 +1,249 @@
-![GoForge](docs/assets/top_banner_m_a.png)
+# 🔄 SelfRestart
 
-
-
-[![Build](https://github.com/rafa-mori/goforge/actions/workflows/release.yml/badge.svg)](https://github.com/rafa-mori/goforge/actions/workflows/release.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Go Version](https://img.shields.io/badge/go-%3E=1.20-blue)](go.mod)
-[![Releases](https://img.shields.io/github/v/release/faelmori/goforge?include_prereleases)](https://github.com/rafa-mori/goforge/releases)
-
----
+[![Go Version](https://img.shields.io/badge/Go-1.24+-blue.svg)](https://golang.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rafa-mori/selfrestart)](https://goreportcard.com/report/github.com/rafa-mori/selfrestart)
 
 [🇧🇷 Read this documentation in Portuguese](docs/README.pt-BR.md)
 
-If you’re tired of manual builds, complicated deploys, confusing versioning, and want a stylish, easy-to-extend, production-ready CLI, **GoForge** is for you!
+**SelfRestart** is a Go library that allows applications to restart themselves automatically in a safe and elegant way. Unlike other solutions like `go-selfupdate`, this library focuses specifically on **automatic process restart**, offering fine-grained control over the application lifecycle.
 
----
+## 🎯 Features
 
-## 🌟 Advanced Examples
+- ✅ **Automatic Restart**: Restarts the application preserving arguments and environment
+- ✅ **Platform Detection**: Support for Linux, macOS and Windows
+- ✅ **Automatic Go Installation**: Installs Go automatically if needed
+- ✅ **Process Management**: Complete control over PIDs and signals
+- ✅ **Integrated Logging**: Logging system with different levels
+- ✅ **Modular**: Clean and well-organized architecture
+- ✅ **Thread-Safe**: Safe for use in concurrent applications
 
-### 1. Extending the CLI with a new command
+## 📦 Installation
 
-Create a new file at `cmd/cli/hello.go`:
+```bash
+go get github.com/rafa-mori/selfrestart
+```
+
+## 🚀 Basic Usage
 
 ```go
-package cli
+package main
 
 import (
     "fmt"
-    "github.com/spf13/cobra"
+    "os"
+    "os/signal"
+    "syscall"
+    
+    "github.com/rafa-mori/selfrestart"
 )
 
-var HelloCmd = &cobra.Command{
-    Use:   "hello",
-    Short: "Custom command example",
-    Run: func(cmd *cobra.Command, args []string) {
-        fmt.Println("Hello, world! Custom command working!")
-    },
-}
-```
-
-In `wrpr.go`, register the command:
-
-```go
-// ...existing code...
-rootCmd.AddCommand(cli.HelloCmd)
-// ...existing code...
-```
-
----
-
-### 2. Advanced logger with extra context
-
-```go
-import gl "github.com/rafa-mori/goforge/logger"
-
-func exampleWithContext() {
-    gl.Log("warn", "Warning! Something might be wrong.")
-    gl.Log("debug", map[string]interface{}{
-        "user": "rafael",
-        "action": "login",
-        "success": true,
-    })
-}
-```
-
----
-
-### 3. Using as a Go library
-
-```go
-import "github.com/rafa-mori/goforge"
-
 func main() {
-    var myModule goforge.GoForge = &MyModule{}
-    if myModule.Active() {
-        _ = myModule.Execute()
+    // Create a SelfRestart instance
+    sr := selfrestart.New()
+    
+    // Check if Go is installed
+    if !sr.IsGolangInstalled() {
+        fmt.Println("Go is not installed")
+        os.Exit(1)
+    }
+    
+    // Setup signal capture
+    sigChan := make(chan os.Signal, 1)
+    signal.Notify(sigChan, syscall.SIGUSR1)
+    
+    for {
+        select {
+        case <-sigChan:
+            fmt.Println("Restarting application...")
+            if err := sr.Restart(); err != nil {
+                fmt.Printf("Error restarting: %v\\n", err)
+                os.Exit(1)
+            }
+            os.Exit(0) // Terminate current process
+        }
     }
 }
-
-// Implement the GoForge interface in your module
 ```
 
----
+## 📚 API Documentation
 
-## ✨ What is GoForge?
-
-GoForge is a template/base project for any modern Go module. It delivers:
-
-- **Multi-platform build** (Linux, macOS, Windows) with no code changes
-- **Automatic UPX compression** for optimized binaries
-- **Automatic publishing** to GitHub Releases
-- **Unified dependency management**
-- **Automatic checksum** to ensure binary integrity
-- **Custom, stylish CLI** (cobra), ready to extend
-- **Flexible architecture**: use as a library or executable
-- **Automatic versioning**: CI/CD fills and embeds the version in the binary
-- **Structured logger**: contextual, colored logging with levels and line tracing
-
-All this without changing your module’s code. The workflow is modular, dynamic, and adapts to any environment!
-
----
-
-## 🏗️ Project Structure
-
-```plain text
-./
-├── .github/workflows/      # CI/CD workflows (release, checksum)
-├── article.go              # GoForge interface for library use
-├── cmd/                    # CLI entrypoint and commands
-│   ├── cli/                # Utilities and example commands
-│   ├── main.go             # CLI application main
-│   ├── usage.go            # Custom usage template
-│   └── wrpr.go             # Command structure and registration
-├── go.mod                  # Go dependencies
-├── logger/                 # Global structured logger
-│   └── logger.go           # Contextual, colored logger
-├── Makefile                # Entrypoint for build, test, lint, etc.
-├── support/                # Helper scripts for build/install
-├── version/                # Automatic versioning
-│   ├── CLI_VERSION         # Filled by CI/CD
-│   └── semantic.go         # Semantic versioning utilities
-```
-
----
-
-## 💡 Why use it?
-
-- **No headaches** with builds and deploys
-- **Production-ready CLI** that’s easy to customize
-- **Powerful logger**: debug, info, warn, error, success, all with context
-- **Automatic versioning**: never forget to update your version again
-- **Easy to extend**: add commands, use as a library, plug into other projects
-
----
-
-## 🚀 Getting Started
-
-### 1. Install dependencies
-
-```sh
-make install
-```
-
-### 2. Build the project
-
-```sh
-make build
-```
-
-### 3. Run the CLI
-
-```sh
-./goforge --help
-```
-
-### 4. Add custom commands
-
-Create files in `cmd/cli/` and register them in `wrpr.go`.
-
----
-
-## 🛠️ Logger usage example
+### Main Structure
 
 ```go
-import gl "github.com/rafa-mori/goforge/logger"
-
-gl.Log("info", "Informative message")
-gl.Log("error", "Something went wrong!")
+type SelfRestart struct {
+    // Internal fields (not exposed)
+}
 ```
 
-The logger automatically includes context (line, file, function)!
+### Main Methods
 
----
+#### `New() *SelfRestart`
 
-## 🔄 Automatic versioning
+Creates a new SelfRestart instance.
 
-The `version/CLI_VERSION` file is filled by CI/CD on every release/tag. The `goforge version` command shows the current and latest version from GitHub.
+#### `IsGolangInstalled() bool`
 
----
+Checks if Go is installed on the system and offers automatic installation if needed.
 
-## 🤝 Contribute
+#### `Restart() error`
 
-Pull requests, issues, and suggestions are very welcome. Let’s evolve together!
+Restarts the current process safely.
 
----
+#### `GetCurrentPID() int`
+
+Returns the current process PID.
+
+#### `KillCurrentProcess() error`
+
+Terminates the current process gracefully.
+
+#### `IsProcessRunning(pid int) (bool, error)`
+
+Checks if a process with the specified PID is running.
+
+#### `InstallGo() (bool, error)`
+
+Installs Go automatically on Unix systems.
+
+#### `GetPlatformInfo() platform.PlatformInfo`
+
+Returns information about the current platform (OS/Architecture).
+
+## 🏗️ Architecture
+
+The project is organized in a modular way:
+
+```
+selfrestart/
+├── selfrestart.go          # Main public API
+├── example/
+│   └── main.go            # Usage example
+├── internal/
+│   ├── install/           # Go installation management
+│   ├── platform/          # Platform detection
+│   ├── process/           # Process management
+│   └── restart/           # Restart logic
+└── logger/                # Logging system
+```
+
+### Internal Modules
+
+- **install**: Responsible for Go detection and automatic installation
+- **platform**: Manages platform and architecture information
+- **process**: Controls processes, PIDs and system signals
+- **restart**: Implements restart logic using temporary scripts
+- **logger**: Integrated logging system
+
+## 🔧 Advanced Example
+
+See the `example/main.go` file for a complete example that demonstrates:
+
+- System signal capture
+- Automatic restart via SIGUSR1
+- Continuous application monitoring
+- Graceful shutdown management
+
+To run the example:
+
+```bash
+cd example
+go run main.go
+```
+
+In another terminal, test the restart:
+
+```bash
+# Get the application PID
+ps aux | grep main
+
+# Send restart signal
+kill -USR1 <PID>
+```
+
+## 🎛️ Configuration
+
+### Environment Variables
+
+- `PATH`: Used to detect Go installation
+
+### Command Line Arguments
+
+- `--wait`: Waits for the restart script to be executed completely
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+go test ./...
+
+# Run tests with coverage
+go test -v -race -coverprofile=coverage.out ./...
+
+# View coverage report
+go tool cover -html=coverage.out
+```
+
+## 🔍 Troubleshooting
+
+### Go not found
+
+```text
+ERROR: Go is not installed or not found in PATH
+```
+
+**Solution**: The library will offer automatic Go installation.
+
+### Insufficient permissions
+
+```text
+ERROR: Error creating restart script: permission denied
+```
+
+**Solution**: Run with adequate permissions or check if `/tmp` is writable.
+
+### Process doesn't restart
+
+```text
+ERROR: Process did not terminate after interrupt signal
+```
+
+**Solution**: Check if there are no blocks in the application that prevent graceful shutdown.
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📋 Roadmap
+
+- [ ] Windows Service support
+- [ ] systemd integration (Linux)
+- [ ] Automatic backup before restart
+- [ ] Webhooks for notifications
+- [ ] Web interface for monitoring
+- [ ] Metrics and monitoring
+- [ ] Docker container support
 
 ## 📄 License
 
-MIT. See the LICENSE file.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by the [go-selfupdate](https://github.com/sanbornm/go-selfupdate) project
+- Built with Go community best practices
+- Special thanks to contributors
+
+## 📞 Support
+
+- 🐛 **Issues**: [GitHub Issues](https://github.com/rafa-mori/selfrestart/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/rafa-mori/selfrestart/discussions)
+- 📧 **Email**: [your-email@example.com]
 
 ---
 
-## 👤 Author
-
-Rafael Mori — [@faelmori](https://github.com/rafa-mori)
-
----
-
-## 🌐 Links
-
-- [GitHub Repository](https://github.com/rafa-mori/goforge)
-- [Logger usage example](logger/logger.go)
-- [CI/CD Workflows](.github/workflows/)
-
----
-
-> Made with 💙 for the Go community. Let’s automate everything!
+⭐ **If this project was useful to you, consider giving it a star on GitHub!**

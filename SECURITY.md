@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following table outlines which versions of GoForge currently receive security updates:
+The following table outlines which versions of SelfRestart currently receive security updates:
 
 | Version | Supported           |
 | ------- | ------------------- |
@@ -15,11 +15,11 @@ The following table outlines which versions of GoForge currently receive securit
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in GoForge:
+If you discover a security vulnerability in SelfRestart:
 
 - **Do NOT disclose it publicly** or via any public forum (including Discord).
 - Please report it through one of these private channels:
-  - [GitHub Security Advisories](https://github.com/rafa-mori/goforge/security/advisories)
+  - [GitHub Security Advisories](https://github.com/rafa-mori/selfrestart/security/advisories)
   - Or email: [maintainer@example.com] (replace this with your actual security contact email)
 
 Include as much detail as possible, such as:

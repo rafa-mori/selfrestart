@@ -1,201 +1,235 @@
-# 🚀 GoForge: Automação, CLI Moderna e Estrutura Profissional para Módulos Go
+# 🔄 SelfRestart
 
-[![Build](https://github.com/rafa-mori/goforge/actions/workflows/release.yml/badge.svg)](https://github.com/rafa-mori/goforge/actions/workflows/release.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Go Version](https://img.shields.io/badge/go-%3E=1.20-blue)](go.mod)
-[![Releases](https://img.shields.io/github/v/release/faelmori/goforge?include_prereleases)](https://github.com/rafa-mori/goforge/releases)
+[![Go Version](https://img.shields.io/badge/Go-1.24+-blue.svg)](https://golang.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rafa-mori/selfrestart)](https://goreportcard.com/report/github.com/rafa-mori/selfrestart)
 
-Se você já cansou de builds manuais, deploys complicados, versionamento confuso e quer uma CLI estilosa, fácil de estender e pronta para produção, o **GoForge** é pra você!
+[🇺🇸 Read this documentation in English](../README.md)
 
----
+**SelfRestart** é uma biblioteca Go que permite que aplicações se reiniciem automaticamente de forma segura e elegante. Diferente de outras soluções como `go-selfupdate`, esta biblioteca foca especificamente no **reinício automático** de processos, oferecendo controle fino sobre o ciclo de vida da aplicação.
 
-## 🌟 Exemplos Avançados
+## 🎯 Características
 
-### 1. Estendendo a CLI com um novo comando
+- ✅ **Reinício Automático**: Reinicia a aplicação preservando argumentos e ambiente
+- ✅ **Detecção de Plataforma**: Suporte para Linux, macOS e Windows
+- ✅ **Instalação Automática do Go**: Instala o Go automaticamente se necessário
+- ✅ **Gestão de Processos**: Controle completo sobre PIDs e sinais
+- ✅ **Logging Integrado**: Sistema de logs com diferentes níveis
+- ✅ **Modular**: Arquitetura limpa e bem organizada
+- ✅ **Thread-Safe**: Seguro para uso em aplicações concorrentes
 
-Crie um novo arquivo em `cmd/cli/hello.go`:
+## 📦 Instalação
+
+```bash
+go get github.com/rafa-mori/selfrestart
+```
+
+## 🚀 Uso Básico
 
 ```go
-package cli
+package main
 
 import (
     "fmt"
-    "github.com/spf13/cobra"
+    "os"
+    "os/signal"
+    "syscall"
+    
+    "github.com/rafa-mori/selfrestart"
 )
 
-var HelloCmd = &cobra.Command{
-    Use:   "hello",
-    Short: "Exemplo de comando customizado",
-    Run: func(cmd *cobra.Command, args []string) {
-        fmt.Println("Olá, mundo! Comando customizado funcionando!")
-    },
-}
-```
-
-No `wrpr.go`, registre o comando:
-
-```go
-// ...existing code...
-rootCmd.AddCommand(cli.HelloCmd)
-// ...existing code...
-```
-
----
-
-### 2. Logger avançado com contexto extra
-
-```go
-import gl "github.com/rafa-mori/goforge/logger"
-
-func exemploComContexto() {
-    gl.Log("warn", "Atenção! Algo pode estar errado.")
-    gl.Log("debug", map[string]interface{}{
-        "user": "rafael",
-        "action": "login",
-        "success": true,
-    })
-}
-```
-
----
-
-### 3. Usando como biblioteca Go
-
-```go
-import "github.com/rafa-mori/goforge"
-
 func main() {
-    var myModule goforge.GoForge = &MeuModulo{}
-    if myModule.Active() {
-        _ = myModule.Execute()
+    // Criar uma instância do SelfRestart
+    sr := selfrestart.New()
+    
+    // Verificar se Go está instalado
+    if !sr.IsGolangInstalled() {
+        fmt.Println("Go não está instalado")
+        os.Exit(1)
+    }
+    
+    // Configurar captura de sinais
+    sigChan := make(chan os.Signal, 1)
+    signal.Notify(sigChan, syscall.SIGUSR1)
+    
+    for {
+        select {
+        case <-sigChan:
+            fmt.Println("Reiniciando aplicação...")
+            if err := sr.Restart(); err != nil {
+                fmt.Printf("Erro ao reiniciar: %v\\n", err)
+                os.Exit(1)
+            }
+            os.Exit(0) // Termina o processo atual
+        }
     }
 }
-
-// Implemente a interface GoForge no seu módulo
 ```
 
----
+## 📚 Documentação da API
 
-## ✨ O que é o GoForge?
-
-O GoForge é um template/projeto base para qualquer módulo Go moderno. Ele entrega:
-
-- **Build multi-plataforma** (Linux, macOS, Windows) sem mexer no código
-- **Compactação UPX** automática para binários otimizados
-- **Publicação automática** no GitHub Releases
-- **Gerenciamento de dependências** unificado
-- **Checksum automático** para garantir integridade
-- **CLI customizada e estilizada** (cobra), pronta para ser estendida
-- **Arquitetura flexível**: use como biblioteca ou executável
-- **Versionamento automático**: CI/CD preenche e embeda a versão no binário
-- **Logger estruturado**: logging contextual, colorido, com níveis e rastreio de linha
-
-Tudo isso sem precisar alterar o código do seu módulo individualmente. O workflow é modular, dinâmico e se adapta ao ambiente!
-
----
-
-## 🏗️ Estrutura do Projeto
-
-```plain text
-./
-├── .github/workflows/      # Workflows de CI/CD (release, checksum)
-├── article.go              # Interface GoForge para uso como lib
-├── cmd/                    # Entrypoint e comandos da CLI
-│   ├── cli/                # Utilitários e comandos de exemplo
-│   ├── main.go             # Main da aplicação CLI
-│   ├── usage.go            # Template de usage customizado
-│   └── wrpr.go             # Estrutura e registro de comandos
-├── go.mod                  # Dependências Go
-├── logger/                 # Logger global estruturado
-│   └── logger.go           # Logger contextual e colorido
-├── Makefile                # Entrypoint para build, test, lint, etc.
-├── support/                # Scripts auxiliares para build/install
-├── version/                # Versionamento automático
-│   ├── CLI_VERSION         # Preenchido pelo CI/CD
-│   └── semantic.go         # Utilitários de versionamento semântico
-```
-
----
-
-## 💡 Por que usar?
-
-- **Zero dor de cabeça** com builds e deploys
-- **CLI pronta para produção** e fácil de customizar
-- **Logger poderoso**: debug, info, warn, error, success, tudo com contexto
-- **Versionamento automático**: nunca mais esqueça de atualizar a versão
-- **Fácil de estender**: adicione comandos, use como lib, plugue em outros projetos
-
----
-
-## 🚀 Como usar
-
-### 1. Instale as dependências
-
-```sh
-make install
-```
-
-### 2. Build do projeto
-
-```sh
-make build
-```
-
-### 3. Rode a CLI
-
-```sh
-./goforge --help
-```
-
-### 4. Adicione comandos customizados
-
-Crie arquivos em `cmd/cli/` e registre no `wrpr.go`.
-
----
-
-## 🛠️ Exemplo de uso do Logger
+### Estrutura Principal
 
 ```go
-import gl "github.com/rafa-mori/goforge/logger"
-
-gl.Log("info", "Mensagem informativa")
-gl.Log("error", "Algo deu errado!")
+type SelfRestart struct {
+    // Campos internos (não expostos)
+}
 ```
 
-O logger já inclui contexto (linha, arquivo, função) automaticamente!
+### Métodos Principais
 
----
+#### `New() *SelfRestart`
+Cria uma nova instância do SelfRestart.
 
-## 🔄 Versionamento automático
+#### `IsGolangInstalled() bool`
+Verifica se o Go está instalado no sistema e oferece instalação automática se necessário.
 
-O arquivo `version/CLI_VERSION` é preenchido pelo CI/CD a cada release/tag. O comando `goforge version` mostra a versão atual e a última disponível no GitHub.
+#### `Restart() error`
+Reinicia o processo atual de forma segura.
 
----
+#### `GetCurrentPID() int`
+Retorna o PID do processo atual.
 
-## 🤝 Contribua
+#### `KillCurrentProcess() error`
+Finaliza o processo atual de forma graceful.
 
-Pull requests, issues e sugestões são super bem-vindos. Vamos evoluir juntos!
+#### `IsProcessRunning(pid int) (bool, error)`
+Verifica se um processo com o PID especificado está rodando.
 
----
+#### `InstallGo() (bool, error)`
+Instala o Go automaticamente em sistemas Unix.
+
+#### `GetPlatformInfo() platform.PlatformInfo`
+Retorna informações sobre a plataforma atual (OS/Arquitetura).
+
+## 🏗️ Arquitetura
+
+O projeto é organizado de forma modular:
+
+```
+selfrestart/
+├── selfrestart.go          # API pública principal
+├── example/
+│   └── main.go            # Exemplo de uso
+├── internal/
+│   ├── install/           # Gestão de instalação do Go
+│   ├── platform/          # Detecção de plataforma
+│   ├── process/           # Gestão de processos
+│   └── restart/           # Lógica de reinício
+└── logger/                # Sistema de logging
+```
+
+### Módulos Internos
+
+- **install**: Responsável pela detecção e instalação automática do Go
+- **platform**: Gerencia informações de plataforma e arquitetura
+- **process**: Controla processos, PIDs e sinais do sistema
+- **restart**: Implementa a lógica de reinício usando scripts temporários
+- **logger**: Sistema de logging integrado
+
+## 🔧 Exemplo Avançado
+
+Veja o arquivo `example/main.go` para um exemplo completo que demonstra:
+
+- Captura de sinais do sistema
+- Reinício automático via SIGUSR1
+- Monitoramento contínuo da aplicação
+- Gestão graceful de shutdown
+
+Para executar o exemplo:
+
+```bash
+cd example
+go run main.go
+```
+
+Em outro terminal, teste o reinício:
+
+```bash
+# Obter o PID da aplicação
+ps aux | grep main
+
+# Enviar sinal de reinício
+kill -USR1 <PID>
+```
+
+## 🎛️ Configuração
+
+### Variáveis de Ambiente
+
+- `PATH`: Usado para detectar instalação do Go
+
+### Argumentos de Linha de Comando
+
+- `--wait`: Aguarda o script de reinício ser executado completamente
+
+## 🧪 Testando
+
+```bash
+# Executar todos os testes
+go test ./...
+
+# Executar testes com cobertura
+go test -v -race -coverprofile=coverage.out ./...
+
+# Ver relatório de cobertura
+go tool cover -html=coverage.out
+```
+
+## 🔍 Troubleshooting
+
+### Go não encontrado
+```
+ERRO: Go não está instalado ou não foi encontrado no PATH
+```
+**Solução**: A biblioteca oferecerá instalação automática do Go.
+
+### Permissões insuficientes
+```
+ERRO: Erro ao criar script de reinício: permission denied
+```
+**Solução**: Execute com permissões adequadas ou verifique se `/tmp` é gravável.
+
+### Processo não reinicia
+```
+ERRO: Processo não finalizou após sinal de interrupção
+```
+**Solução**: Verifique se não há bloqueios na aplicação que impeçam o shutdown graceful.
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📋 Roadmap
+
+- [ ] Suporte para Windows Service
+- [ ] Integração com systemd (Linux)
+- [ ] Backup automático antes do reinício
+- [ ] Webhooks para notificações
+- [ ] Interface web para monitoramento
+- [ ] Métricas e monitoramento
+- [ ] Suporte a containers Docker
 
 ## 📄 Licença
 
-MIT. Veja o arquivo LICENSE.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+
+## 🙏 Agradecimentos
+
+- Inspirado no projeto [go-selfupdate](https://github.com/sanbornm/go-selfupdate)
+- Construído com as melhores práticas da comunidade Go
+- Agradecimentos especiais aos contribuidores
+
+## 📞 Suporte
+
+- 🐛 **Issues**: [GitHub Issues](https://github.com/rafa-mori/selfrestart/issues)
+- 💬 **Discussões**: [GitHub Discussions](https://github.com/rafa-mori/selfrestart/discussions)
+- 📧 **Email**: [seu-email@exemplo.com]
 
 ---
 
-## 👤 Autor
-
-Rafael Mori — [@faelmori](https://github.com/rafa-mori)
-
----
-
-## 🌐 Links
-
-- [Repositório no GitHub](https://github.com/rafa-mori/goforge)
-- [Exemplo de uso do logger](logger/logger.go)
-- [Workflows de CI/CD](.github/workflows/)
-
----
-
-> Feito com 💙 para a comunidade Go. Bora automatizar tudo!
+⭐ **Se este projeto foi útil para você, considere dar uma estrela no GitHub!**

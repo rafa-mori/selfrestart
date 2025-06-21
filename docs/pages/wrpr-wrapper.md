@@ -1,15 +1,15 @@
-# GoForge CLI Wrapper Documentation
+# SelfRestart CLI Wrapper Documentation
 
 ## Overview
 
-The `cmd/wrpr.go` file implements a wrapper for the GoForge CLI, providing a structured interface for managing application commands and configurations.
+The `cmd/wrpr.go` file implements a wrapper for the SelfRestart CLI, providing a structured interface for managing application commands and configurations.
 
 ## Main Structure
 
-### `GoForge` Type
+### `SelfRestart` Type
 
 ```go
-type GoForge struct {
+type SelfRestart struct {
     parentCmdName string
     printBanner   bool
 }
@@ -25,8 +25,8 @@ type GoForge struct {
 ### Configuration Methods
 
 - **`Alias()`**: Returns empty string (no alias defined)
-- **`ShortDescription()`**: Short description of GoForge
-- **`LongDescription()`**: Long description of GoForge  
+- **`ShortDescription()`**: Short description of SelfRestart
+- **`LongDescription()`**: Long description of SelfRestart  
 - **`Usage()`**: Command usage pattern
 - **`Examples()`**: List of usage examples
 - **`Active()`**: Always returns `true` (active module)
@@ -71,13 +71,13 @@ The `RegX()` function configures the instance based on environment variables:
 ### `RegX()`
 
 ```go
-func RegX() *GoForge
+func RegX() *SelfRestart
 ```
 
 **Responsibilities:**
 
 - Reads `GOFORGE_PRINT_BANNER` environment variable
-- Creates and returns new `GoForge` instance
+- Creates and returns new `SelfRestart` instance
 - Sets default configuration for banner display
 
 ## Dependencies
@@ -104,11 +104,11 @@ func RegX() *GoForge
 ## Usage Example
 
 ```go
-// Create GoForge instance
-goforge := RegX()
+// Create SelfRestart instance
+selfrestart := RegX()
 
 // Execute CLI
-if err := goforge.Execute(); err != nil {
+if err := selfrestart.Execute(); err != nil {
     log.Fatal(err)
 }
 ```

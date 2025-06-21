@@ -80,6 +80,7 @@ help:
 	$(call log_break)
 	$(call log, Available targets:)
 	$(call log,   make build      - Build the binary using install script)
+	$(call log,   make build-dev  - Build the binary without compressing it)
 	$(call log,   make install    - Install the binary and configure environment)
 	$(call log,   make clean      - Clean up build artifacts)
 	$(call log,   make test       - Run tests)
